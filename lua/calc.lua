@@ -125,9 +125,8 @@ local toggle = function()
 end
 
 M.setup = function()
-	for p,_ in pairs(package.loaded) do if p:match("^calc") then package.loaded[p]=nil end end
     vim.api.nvim_create_user_command('Calc', toggle, {})
-    map('<leader>k', toggle)
+    -- map('<leader>k', toggle)
 end
 
 return M

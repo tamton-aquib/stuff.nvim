@@ -4,7 +4,7 @@ Some little plugin-like files put together.
 > Warning:
 Not much use, theres no config options, etc (just wanted to share the work)
 
-included modules:
+Included modules:
 
 ### Calc
 ![calc](https://user-images.githubusercontent.com/77913442/183280043-b8e0b5bf-2fb3-41a8-b244-835743f1bdf3.gif)
@@ -41,9 +41,16 @@ require("scratch").setup()
 ```lua
 require("bt").setup()
 ```
+---
 
 ### Float
 ![float](https://user-images.githubusercontent.com/77913442/183281327-eeafbd28-7287-4edd-a725-522280382b8d.gif)
 ```lua
 require("float").setup()
 ```
+
+## Inspiration
+- Scratch: [shift-d](https://github.com/shift-d)
+- Calc: [binx](https://github.com/BinxDot/)
+- Stalk: (i dont remember the username, the repo was deleted)
+- Float: [vsedov](https://github.com/vsedov)
