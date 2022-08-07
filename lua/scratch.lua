@@ -7,7 +7,7 @@ local eval = function()
     loadstring(table.concat(lines, '\n'))()
 end
 
-local toggle = function()
+M.toggle = function()
     if flag then
         vim.api.nvim_win_close(win, true)
     else
@@ -22,22 +22,14 @@ end
 
 M.setup = function(opts)
     opts = opts or {}
-    for p, _ in pairs(package.loaded) do if p:match("^scratch") then package.loaded[p]=nil end end
 
     buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_option(buf, 'ft', 'lua')
     vim.api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
 
-    -- if opts.keymap then
-        -- if opts.keymap.eval then
-            vim.keymap.set('n', '<leader>r', eval, {buffer=buf})
-        -- end
-        -- if opts.keymap.toggle then
-            -- vim.keymap.set('n', '<leader>k', toggle, {silent=true})
-        -- end
-    -- end
+    vim.keymap.set('n', '<leader>r', eval, {buffer=buf})
 
-    vim.api.nvim_create_user_command('Scratch', toggle, {})
+    vim.api.nvim_create_user_command('Scratch', M.toggle, {})
     -- vim.api.nvim_create_user_command('ScratchEval', eval, {})
 end
 

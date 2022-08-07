@@ -5,7 +5,7 @@ local map = {
     n="ⁿ",o="ᵒ", p="ᵖ",q="q",r="ʳ",s="ˢ",t="ᵗ",u="ᵘ",v="ᵛ",w="ʷ",x="ˣ",y="ʸ",z="ᶻ"
 }
 
-local toggle = function()
+M.toggle = function()
     local id=0
 	toggle_bookmark = not toggle_bookmark
 	for letter, sub in pairs(map) do -- 📑          🔖
@@ -32,7 +32,7 @@ end
 
 M.setup = function()
 	-- vim.keymap.set('n', '<leader>b', toggle, {silent=true})
-    vim.api.nvim_create_user_command('Bt', toggle, {})
+    vim.api.nvim_create_user_command('Bt', M.toggle, {})
 end
 
 return M

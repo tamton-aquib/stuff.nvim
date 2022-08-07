@@ -119,13 +119,13 @@ local start_calc = function()
     vim.api.nvim__set_hl_ns(ns)
 end
 
-local toggle = function()
+M.toggle = function()
     (calc_opened and quit or start_calc)()
     calc_opened = not calc_opened
 end
 
 M.setup = function()
-    vim.api.nvim_create_user_command('Calc', toggle, {})
+    vim.api.nvim_create_user_command('Calc', M.toggle, {})
     -- map('<leader>k', toggle)
 end
 

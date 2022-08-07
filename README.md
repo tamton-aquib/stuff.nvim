@@ -17,6 +17,7 @@ require("calc").setup()
 - Todo:
     - [ ] emulate keypress with highlights.
     - [ ] avoid hardcoded layout.
+    - [ ] preset calculate yanked item.
 
 ---
 
@@ -58,5 +59,5 @@ require("float").setup()
 ## Inspiration
 - `Scratch`: [shift-d](https://github.com/shift-d)
 - `Calc`: [binx](https://github.com/BinxDot/)
-- `Stalk`: (i dont remember the username, the repo was deleted)
+- `Stalk`: [dundargoc](https://github.com/dundargoc)
 - `Float`: [vsedov](https://github.com/vsedov)

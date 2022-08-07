@@ -22,7 +22,7 @@ local parse_json = function(json_data)
     return events
 end
 
-local stalk = function()
+S.stalk = function()
 	vim.ui.input({prompt="Enter gh username: "}, function(username)
         vim.cmd [[vsp | enew | setl nonu nornu bt=nofile bh=wipe]]
 		local url = ("https://api.github.com/users/%s/received_events"):format(username)
@@ -36,7 +36,7 @@ local stalk = function()
 end
 
 S.setup = function()
-    vim.api.nvim_create_user_command("Stalk", function() stalk() end, {})
+    vim.api.nvim_create_user_command("Stalk", S.stalk, {})
 end
 
 return S
