@@ -45,7 +45,7 @@ require("bt").setup()
 ```
 ---
 
-### Float
+### Float (50 loc)
 ![float](https://user-images.githubusercontent.com/77913442/183281327-eeafbd28-7287-4edd-a725-522280382b8d.gif)
 ```lua
 require("float").setup()
@@ -56,7 +56,7 @@ require("float").setup()
 - snake.lua (snake game using floating wins)
 
 ## Inspiration
-- Scratch: [shift-d](https://github.com/shift-d)
-- Calc: [binx](https://github.com/BinxDot/)
-- Stalk: (i dont remember the username, the repo was deleted)
-- Float: [vsedov](https://github.com/vsedov)
+- `Scratch`: [shift-d](https://github.com/shift-d)
+- `Calc`: [binx](https://github.com/BinxDot/)
+- `Stalk`: (i dont remember the username, the repo was deleted)
+- `Float`: [vsedov](https://github.com/vsedov)

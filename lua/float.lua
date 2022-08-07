@@ -1,15 +1,6 @@
 local F = {}
 local selected_win
 
--- local create_float = function(args)
-	-- local buf = vim.api.nvim_create_buf(false, true)
-	-- selected_win = vim.api.nvim_open_win(buf, true, {
-		-- relative='editor', style='minimal', border='single',
-		-- row=0, col=0, height=10, width=50
-	-- })
-    -- vim.api.nvim_buf_set_option(0, 'filetype', args.args)
--- end
-
 local move_float = function(conf, dir)
 	if dir == "down" then
 		conf["row"][false] = conf["row"][false] + 1
@@ -54,7 +45,6 @@ F.setup = function()
 	vim.keymap.set('n', '<C-left>', function() change_win_prop("left") end)
 	vim.keymap.set('n', '<C-right>', function() change_win_prop("right") end)
 	-- vim.keymap.set('n', 'U', enter_float)
-    -- vim.api.nvim_create_user_command("Float", create_float, {})
 end
 
 return F
