@@ -110,10 +110,11 @@ local start_calc = function()
     backup_cursor = vim.opt.guicursor:get()
     vim.opt_local.guicursor = "n:block-Normal"
 
-    vim.api.nvim_set_hl(ns, 'CalcQuery', {fg="#f6955a", bg=nil, bold=true})
-    vim.api.nvim_set_hl(ns, 'CalcResult', {fg="#95c560", bg=nil, bold=true})
-    vim.api.nvim_set_hl(ns, 'CalcKeyPad', {fg="#d7a65e", bg=nil, italic=true})
-    vim.api.nvim_set_hl(ns, 'CalcPressed', {fg="#ffffff", bg=nil})
+    --> Dont know if bold and italic works here
+    vim.api.nvim_set_hl(ns, 'CalcQuery', { link="Constant", bold=true })
+    vim.api.nvim_set_hl(ns, 'CalcResult', { link="Function", bold=true})
+    vim.api.nvim_set_hl(ns, 'CalcKeyPad', { link="String", italic=true })
+    vim.api.nvim_set_hl(ns, 'CalcPressed', { link="White" })
 
     Calc:set_maps()
     vim.api.nvim__set_hl_ns(ns)
