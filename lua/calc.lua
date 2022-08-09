@@ -70,7 +70,7 @@ local quit = function()
 end
 
 function Calc:set_maps()
-    for _, l in ipairs(vim.split("1234567890-+/*()", '')) do map(l, function() add_key(l) end) end
+    for _, l in ipairs(vim.split("1234567890-+/*().", '')) do map(l, function() add_key(l) end) end
     for key, mapping in pairs({
         ["="] = calculate,
         ["<CR>"] = calculate,
