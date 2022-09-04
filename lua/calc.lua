@@ -108,7 +108,7 @@ local start_calc = function()
     Calc:update_query()
     Calc:update_result()
     backup_cursor = vim.opt.guicursor:get()
-    vim.opt_local.guicursor = "n:block-Normal"
+    vim.opt_local.guicursor = "n:block-NormalFloat"
 
     --> Dont know if bold and italic works here
     vim.api.nvim_set_hl(ns, 'CalcQuery', { link="Constant", bold=true })
@@ -117,7 +117,7 @@ local start_calc = function()
     vim.api.nvim_set_hl(ns, 'CalcPressed', { link="White" })
 
     Calc:set_maps()
-    vim.api.nvim__set_hl_ns(ns)
+    vim.api.nvim_win_set_hl_ns(Calc.win, ns)
 end
 
 M.toggle = function()
