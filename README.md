@@ -52,9 +52,18 @@ require("bt").setup()
 require("float").setup()
 ```
 
+---
+
+### TmpClone (75 loc)
+![tmpclone](https://user-images.githubusercontent.com/77913442/188803827-bc56d6d8-eae9-473b-b340-df4b5ba843d2.gif)
+```lua
+require("tmpclone").clone()
+```
+
 ## Other dev files (not nearly completed):
 - neofetch.lua (system info using libuv)
 - snake.lua (snake game using floating wins)
+- animate.lua (animates closing windows, prolly add support later for opening)
 
 ## Inspiration
 - `Scratch`: [shift-d](https://github.com/shift-d)
@@ -62,3 +71,4 @@ require("float").setup()
 - `Stalk`: [dundargoc](https://github.com/dundargoc)
 - `Float`: [vsedov](https://github.com/vsedov)
 - `TmpClone`: [Danielhp95](https://github.com/Danielhp95/tmpclone-nvim)
+- `animate`: [camspiers](https://github.com/camspiers/animate.vim)

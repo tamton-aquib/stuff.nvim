@@ -1,18 +1,19 @@
 local M = {}
 local clones = {}
+local tmpclone_loaded = false
 
 local convert = function(repo, t)
     local dirname = t == "-" and repo:gsub("/", "---") or repo:gsub("---", "/")
-    local path = "/tmp/"..dirname
-    return {dirname=dirname, path=path}
+    local path = "/tmp/tmpclone/"..dirname
+    return { dirname=dirname, path=path }
 end
 
--- TODO: Better logic by traversing the /tmp/plugin dir.
-local get_clones = function() return clones end
+local get_clones = function() return vim.fn.readdir("/tmp/tmpclone/") end
 
-local clone = function(repo)
+local tmpclone = function(repo)
     local nice = convert(repo, "-")
-    local cmd = "git clone --depth 1 https://github.com/"..repo..".git "..nice.path
+    local bruh = repo:match("github.com") and repo or "https://github.com/"..repo
+    local cmd = "git clone --depth 1 "..bruh.." "..nice.path
     vim.fn.jobstart(cmd, {
         on_exit = function(_, code, _) -- id, status
             if code == 0 then
@@ -26,9 +27,10 @@ local clone = function(repo)
             vim.cmd("tabe  "..nice.path)
         end,
     })
+    vim.notify("Cloning "..repo)
 end
 
-local del = function(repo)
+local tmpdel = function(repo)
     local nice = convert(repo, "-")
     if not repo then
         require("essentials").ui_picker(clones, function(option)
@@ -42,14 +44,26 @@ local del = function(repo)
     table.remove(clones, #clones)
 end
 
+M.clone = function()
+    if not tmpclone_loaded then
+        M.setup()
+        tmpclone_loaded = true
+    end
+
+    vim.ui.input({prompt="Enter repo name: "}, function(repo)
+        tmpclone(repo)
+    end)
+end
+
 M.setup = function()
-	for p,_ in pairs(package.loaded) do if p:match("^tempclone") then package.loaded[p]=nil end end
+	-- for p,_ in pairs(package.loaded) do if p:match("^tmpclone") then package.loaded[p]=nil end end
+    tmpclone_loaded = true
 
     vim.api.nvim_create_user_command('TmpClone', function(opts)
-        clone(opts.args)
+        tmpclone(opts.args)
     end, { nargs=1, complete=get_clones })
     vim.api.nvim_create_user_command('TmpDel', function(opts)
-        del(opts.args)
+        tmpdel(opts.args)
     end, { nargs=1, complete=get_clones })
     vim.api.nvim_create_user_command('TmpList', function()
         print(vim.inspect(clones))

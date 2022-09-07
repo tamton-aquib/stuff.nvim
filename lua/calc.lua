@@ -94,6 +94,7 @@ local start_calc = function()
         style='minimal', relative='cursor', border='double',
         row=0, col=0, width=21, height=13
     })
+    vim.bo[Calc.buf].modifiable = false
 
     for i=0,10,2 do add_line("", i, 'None') end
 
@@ -127,7 +128,6 @@ end
 
 M.setup = function()
     vim.api.nvim_create_user_command('Calc', M.toggle, {})
-    -- map('<leader>k', toggle)
 end
 
 return M
