@@ -94,7 +94,6 @@ local start_calc = function()
         style='minimal', relative='cursor', border='double',
         row=0, col=0, width=21, height=13
     })
-    vim.bo[Calc.buf].modifiable = false
 
     for i=0,10,2 do add_line("", i, 'None') end
 
@@ -119,6 +118,7 @@ local start_calc = function()
 
     Calc:set_maps()
     vim.api.nvim_win_set_hl_ns(Calc.win, ns)
+    vim.bo[Calc.buf].modifiable = false
 end
 
 M.toggle = function()
