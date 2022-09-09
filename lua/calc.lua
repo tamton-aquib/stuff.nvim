@@ -118,7 +118,6 @@ local start_calc = function()
 
     Calc:set_maps()
     vim.api.nvim_win_set_hl_ns(Calc.win, ns)
-    vim.bo[Calc.buf].modifiable = false
 end
 
 M.toggle = function()
