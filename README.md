@@ -60,7 +60,7 @@ require("float").setup()
 require("tmpclone").clone()
 ```
 
-## Other dev files (not nearly completed):
+## Other dev files (not completed):
 - neofetch.lua (system info using libuv)
 - snake.lua (snake game using floating wins)
 - animate.lua (animates closing windows, prolly add support later for opening)
