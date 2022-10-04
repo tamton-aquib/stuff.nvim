@@ -14,15 +14,14 @@ M.create_float = function()
 end
 
 M.setup = function()
-    local counter = 0
     timer = vim.loop.new_timer()
     local conf = vim.api.nvim_win_get_config(0)
+
     if conf.relative == "" then
-        if #vim.api.nvim_list_wins() >= 2 then
+        if #vim.api.nvim_list_wins() > 1 then
             timer:start(100, 10, vim.schedule_wrap(function()
                 if vim.api.nvim_win_get_width(0) == vim.o.columns then
                     local height = vim.api.nvim_win_get_height(0)
-                    -- 3
                     if height <= vim.opt.winheight:get() then
                         timer:stop()
                         timer:close()
@@ -32,7 +31,6 @@ M.setup = function()
                     vim.cmd [[resize -1]]
                 elseif vim.api.nvim_win_get_height(0) then
                     local width = vim.api.nvim_win_get_width(0)
-                    -- 15
                     if width <= vim.opt.winwidth:get() then
                         timer:stop()
                         timer:close()
