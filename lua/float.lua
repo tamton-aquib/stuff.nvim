@@ -1,7 +1,7 @@
 -- TODO: maybe move tot fully fledged plugin in future
 -- TODO: maybe do for splits too. (not works only for floats)
 local F = {}
--- local selected_win
+local _open_win
 
 F.open = function(buf, enter, ...)
     local cfg = ({...})[1]
@@ -12,7 +12,7 @@ F.open = function(buf, enter, ...)
 
     cfg_bak["height"] = 1
     cfg_bak["width"] = 1
-    local win = vim.api.nvim_open_win(buf, enter, cfg_bak)
+    local win = _open_win(buf, enter, cfg_bak)
 
     timer:start(50, 10, vim.schedule_wrap(function()
         if done.w and done.h then
@@ -36,6 +36,7 @@ F.open = function(buf, enter, ...)
 
         vim.api.nvim_win_set_config(win, config)
     end))
+    return win
 end
 
 F.close = function()
@@ -133,6 +134,9 @@ end
 -- end
 
 F.setup = function()
+    _open_win = vim.api.nvim_open_win
+    vim.api.nvim_open_win = F.open
+
 	vim.keymap.set('n', '<C-down>', function() change_win_prop("down") end)
 	vim.keymap.set('n', '<C-up>', function() change_win_prop("up") end)
 	vim.keymap.set('n', '<C-left>', function() change_win_prop("left") end)
