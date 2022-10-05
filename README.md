@@ -46,7 +46,7 @@ require("bt").setup()
 ```
 ---
 
-### Float (50 loc)
+### Float (50 loc)  ❗Moved to [flirt.nvim](https://github.com/flirt.nvim)
 ![float](https://user-images.githubusercontent.com/77913442/183281327-eeafbd28-7287-4edd-a725-522280382b8d.gif)
 ```lua
 require("float").setup()
@@ -69,6 +69,6 @@ require("tmpclone").clone()
 - `Scratch`: [shift-d](https://github.com/shift-d)
 - `Calc`: [binx](https://github.com/BinxDot/)
 - `Stalk`: [dundargoc](https://github.com/dundargoc)
-- `Float`: [vsedov](https://github.com/vsedov)
+- `Float`: [vsedov](https://github.com/vsedov) (moved)
 - `TmpClone`: [Danielhp95](https://github.com/Danielhp95/tmpclone-nvim)
 - `animate`: [camspiers](https://github.com/camspiers/animate.vim)
