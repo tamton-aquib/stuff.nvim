@@ -1,5 +1,5 @@
--- TODO: avoid refetching every mod (very inefficient)
 -- TODO: better var names
+-- BUG: avoid removed values
 local M = {
     ns = vim.api.nvim_create_namespace("cost"),
     packs = {}
@@ -25,7 +25,7 @@ local convert = function(bytes)
     return ("%.02f"):format(nice) .. " " .. METRIC_LIST[raised+1]
 end
 
-M.setup = function()
+M.paint = function()
     local language_tree = vim.treesitter.get_parser(0, vim.bo.ft)
     local root = language_tree:parse()[1]
 
@@ -37,33 +37,39 @@ M.setup = function()
     ]])
 
     for _, captures in query:iter_matches(root:root(), 0) do
-        local text = vim.treesitter.query.get_node_text(captures[1], 0)
+        local package = vim.treesitter.query.get_node_text(captures[1], 0)
+        package = package:gsub("/", "."):lower()
+
         local line = captures[1]:range()
 
-        local id = vim.api.nvim_buf_set_extmark(0, M.ns, line, 0, {
-            virt_text_pos = 'eol',
-            virt_text = {{'0 B', 'Function'}}
-        })
-
-        text = text:gsub("/", "."):lower()
-        M.packs[text] = {id=id, line=line, size=''}
-    end
-
-    -- vim.api.nvim_buf_clear_namespace(0, M.ns, 0, -1)
-    for pack, packinfo in pairs(M.packs) do
-        vim.fn.jobstart({"curl", url..pack}, {
-            stdout_buffered = true,
-
-            on_stdout = function(_, data)
-                local size = vim.json.decode(data[1])['gzip']
-                M.packs[pack].size = size
-
-                vim.api.nvim_buf_set_extmark(0, M.ns, packinfo.line, 0, {
-                    virt_text = {{convert(size), 'Function'}},
-                    id = packinfo.id
-                })
+        if not vim.tbl_contains(vim.tbl_keys(M.packs), package) then
+            for _, info in pairs(M.packs) do
+                if info.line == line then
+                    vim.api.nvim_buf_del_extmark(0, M.ns, info.id)
+                end
             end
-        })
+
+            local id = vim.api.nvim_buf_set_extmark(0, M.ns, line, 0, {
+                virt_text_pos = 'eol',
+                virt_text = {{'0 B', 'Function'}}
+            })
+
+            M.packs[package] = {id=id, line=line, size=''}
+
+            vim.fn.jobstart({"curl", url..package}, {
+                stdout_buffered = true,
+
+                on_stdout = function(_, data)
+                    local size = vim.json.decode(data[1])['gzip']
+                    M.packs[package].size = size
+
+                    vim.api.nvim_buf_set_extmark(0, M.ns, line, 0, {
+                        virt_text = {{convert(size), 'Function'}},
+                        id = id
+                    })
+                end
+            })
+        end
     end
 end
 

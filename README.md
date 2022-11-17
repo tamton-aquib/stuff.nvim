@@ -64,6 +64,7 @@ require("tmpclone").clone()
 - neofetch.lua (system info using libuv)
 - snake.lua (snake game using floating wins)
 - animate.lua (animates closing windows, prolly add support later for opening)
+- cost.lua ([import-cost](https://github.com/wix/import-cost) alternative)
 
 ## Inspiration
 - `Scratch`: [shift-d](https://github.com/shift-d)
