@@ -1,8 +1,10 @@
 # Stuff.nvim
 
 Some little plugin-like files put together.
-> Warning:
-Not much use, theres no config options, etc (just wanted to share the work)
+> **Warning**
+> 
+>  Not much use, theres no config options, etc 
+> (just wanted to share the work)
 
 Feel free to extract and make any of them useful.
 
