@@ -76,9 +76,9 @@ require("player").toggle_player()
 - cost.lua ([import-cost](https://github.com/wix/import-cost) alternative)
 
 ## Inspiration
-- `Scratch`: [shift-d](https://github.com/shift-d)
+- `Scratch`: emacs-scratch-buffer + [shift-d](https://github.com/shift-d)
 - `Calc`: [binx](https://github.com/BinxDot/)
-- `Stalk`: [dundargoc](https://github.com/dundargoc)
-- `Float`: [vsedov](https://github.com/vsedov) (moved)
+- `Stalk`: [vim-github-dashboard](junegunn) + [dundargoc](https://github.com/dundargoc)
+- `Float(flirt.nvim)`: [vsedov](https://github.com/vsedov) + [camspiers](https://github.com/camspiers/animate.vim) (moved)
 - `TmpClone`: [Danielhp95](https://github.com/Danielhp95/tmpclone-nvim)
-- `flirt.nvim`: [camspiers](https://github.com/camspiers/animate.vim)
+- overall thanks to [vhyrro](https://github.com/vhyrro).
