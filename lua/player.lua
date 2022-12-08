@@ -1,8 +1,9 @@
 -- TODO: major refacor needed (use ipc instead)
 -- TODO: mouse support, implement queue, fix playlist bug, (maybe an optional discord presence)
 -- TODO: dont update buffer extmark if buffer not shown
+-- TODO: maybe a small visualizer
 
---- Basically call the toggle_player function to toggle the player window
+--- Basically call the toggle_player function to toggle the player window (runs on mpv + youtube-dl)
 --- <CR> will prompt for song name or youtube link to play (playlist is kinda buggy)
 --- p: pause/play                q: quit               m: mute
 --- >: next                      <: prev (in playlists)
@@ -78,15 +79,18 @@ M.toggle_player = function()
             state.title = ""
         end
 
-        -- local query = vim.api.nvim_get_current_line():gsub(" ", "+")
         vim.ui.input({width=40}, function(query)
             if query == "" then
                 vim.notify("Query not provided!")
                 return
             end
 
+            M.title_id = vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
+                virt_text={{'Searching for "'..query..'"...', "Function"}}, virt_text_pos='overlay', id=M.title_id
+            })
+
             if not query:match([[https://(www.)\?youtube.com]]) then
-                query = "ytdl://ytsearch:"..query
+                query = "ytdl://ytsearch:"..table.concat(vim.split(query, ' '), '+')
             end
 
             local command = {"mpv", "--term-playing-msg='${media-title}'", "--no-video", query}

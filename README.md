@@ -62,10 +62,17 @@ require("float").setup()
 require("tmpclone").clone()
 ```
 
+---
+
+### Player (<150 loc)
+![player](https://user-images.githubusercontent.com/77913442/206535745-e3e55f2a-99d9-418b-b2c4-b170a7615ccd.gif)
+```lua
+require("player").toggle_player()
+```
+
 ## Other dev files (not completed):
 - neofetch.lua (system info using libuv)
 - snake.lua (snake game using floating wins)
-- animate.lua (animates closing windows, prolly add support later for opening)
 - cost.lua ([import-cost](https://github.com/wix/import-cost) alternative)
 
 ## Inspiration
@@ -74,4 +81,4 @@ require("tmpclone").clone()
 - `Stalk`: [dundargoc](https://github.com/dundargoc)
 - `Float`: [vsedov](https://github.com/vsedov) (moved)
 - `TmpClone`: [Danielhp95](https://github.com/Danielhp95/tmpclone-nvim)
-- `animate`: [camspiers](https://github.com/camspiers/animate.vim)
+- `flirt.nvim`: [camspiers](https://github.com/camspiers/animate.vim)
