@@ -5,12 +5,12 @@
 --- Basically call the toggle_player function to toggle the player window
 --- <CR> will prompt for song name or youtube link to play (playlist is kinda buggy)
 --- p: pause/play                q: quit               m: mute
---- >: next                      <: prev
+--- >: next                      <: prev (in playlists)
 
 local M = {buf=nil, win=nil, ns=vim.api.nvim_create_namespace("player"), content_id=nil, title_id=nil}
 local conf = { width=50, height=5 }
 local state = {playing=false, jobid=nil, title="", paused=false, timing="", percent=0, muted=false, loaded=false}
-local win_opts = { relative='editor', style='minimal', border='single', row=0, col=0, height=conf.height, width=conf.width, title='PLAYER', title_pos='center' }
+local win_opts = { relative='editor', style='minimal', border='single', row=0, col=vim.o.columns-conf.width-2, height=conf.height, width=conf.width } -- , title='PLAYER', title_pos='center' }
 
 -- NOTE: for statusline components
 M.music_info = function() return state end
@@ -42,7 +42,6 @@ local refresh_screen = function()
 end
 
 M.toggle_player = function()
-    -- for p,_ in pairs(package.loaded) do if p:match("^player") then package.loaded[p]=nil end end
     vim.api.nvim_set_hl(0, 'PlayerGreen', {fg="#95c561",underline=true, bold=true})
     if state.loaded then
         vim.api.nvim_win_hide(M.win)
@@ -52,11 +51,11 @@ M.toggle_player = function()
 
     M.buf = vim.api.nvim_create_buf(false, true)
     M.win = vim.api.nvim_open_win(M.buf, true, win_opts)
-    -- DEBUG: purposes
-    -- vim.api.nvim_set_current_line("https://www.youtube.com/watch?v=gDXhFrYuZ7I")
+
     M.title_id = vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
         virt_text={{state.title, "Function"}}, virt_text_pos='overlay'
     })
+
     M.content_id = vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
         virt_lines={
             {
@@ -87,7 +86,6 @@ M.toggle_player = function()
             end
 
             if not query:match([[https://(www.)\?youtube.com]]) then
-                vim.pretty_print("Query not matched")
                 query = "ytdl://ytsearch:"..query
             end
 
