@@ -48,7 +48,7 @@ require("bt").setup()
 ```
 ---
 
-### Float (50 loc)  ❗Moved to [flirt.nvim](https://github.com/flirt.nvim)
+### Float (50 loc)  ❗Moved to [flirt.nvim](https://github.com/tamton-aquib/flirt.nvim)
 ![float](https://user-images.githubusercontent.com/77913442/183281327-eeafbd28-7287-4edd-a725-522280382b8d.gif)
 ```lua
 require("float").setup()
