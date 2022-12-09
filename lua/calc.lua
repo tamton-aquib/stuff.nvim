@@ -82,13 +82,16 @@ function Calc:set_maps()
             table.remove(pressed, #pressed)
             Calc:update_query()
         end,
+        ["y"] = function()
+            vim.fn.setreg('+', result)
+            vim.notify("Copied result to clipboard!")
+        end
     }) do
         map(key, mapping)
     end
 end
 
 local start_calc = function()
-    -- Calc.buf, Calc.win = utils:init(ns)
 	Calc.buf = vim.api.nvim_create_buf(false, true)
     Calc.win = vim.api.nvim_open_win(Calc.buf, true, {
         style='minimal', relative='cursor', border='double',
