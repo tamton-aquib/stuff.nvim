@@ -1,7 +1,8 @@
--- TODO: major refacor needed (use ipc instead)
+-- TODO: major refacor needed (use ipc instead?)
 -- TODO: mouse support, implement queue, fix playlist bug, (maybe an optional discord presence)
 -- TODO: dont update buffer extmark if buffer not shown
 -- TODO: maybe a small visualizer
+-- TODO: cleanify (priority: 1)
 
 --- Basically call the toggle_player function to toggle the player window (runs on mpv + youtube-dl)
 --- <CR> will prompt for song name or youtube link to play (playlist is kinda buggy)
@@ -11,16 +12,20 @@
 local M = {buf=nil, win=nil, ns=vim.api.nvim_create_namespace("player"), content_id=nil, title_id=nil}
 local conf = { width=50, height=5 }
 local state = {playing=false, jobid=nil, title="", paused=false, timing="", percent=0, muted=false, loaded=false}
-local win_opts = { relative='editor', style='minimal', border='single', row=0, col=vim.o.columns-conf.width-2, height=conf.height, width=conf.width } -- , title='PLAYER', title_pos='center' }
+local win_opts = { relative='editor', style='minimal', border='single', row=1, col=vim.o.columns-conf.width-2, height=conf.height, width=conf.width } -- , title='PLAYER', title_pos='center' }
+local hls = {title="String", timer="Identifier", progress="Function"}
 
 -- NOTE: for statusline components
 M.music_info = function() return state end
 
 local by3 = (" "):rep(math.floor(conf.width/4)-1)
 local refresh_screen = function()
+    local chars = { "🯅", "🯆", "🯇", "🯈" }
+    local char = chars[math.floor(math.random() * #chars) + 1]
+
     local dur = math.floor((state.percent/100) * conf.width)
     vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
-        virt_text = {{state.title, "Function"}}, virt_text_pos='overlay',
+        virt_text = {{state.title, hls.title}}, virt_text_pos='overlay',
         id=M.title_id
     })
 
@@ -28,14 +33,14 @@ local refresh_screen = function()
     vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
         virt_lines={
             {
-                {time1, "Function"}, {(" "):rep(conf.width - 16)}, {time2, "Function"}
+                {time1, hls.timer}, {(" "):rep(conf.width - 16)}, {time2, hls.timer}
             },
             {
-                {("▁"):rep(dur), "Function"}, {"", "PlayerGreen"}, {("▁"):rep(conf.width-dur), "Comment"}
+                {("▁"):rep(dur), hls.progress}, {char, hls.progress}, {("▁"):rep(conf.width-dur), "Comment"}
             },
             {{"", ""}},
             {
-                {by3.."ﲑ", "Function"}, {by3..(not state.paused and "" or ""), "Function"}, {by3.."ﲒ", "Function"}
+                {by3.."ﲑ", hls.progress}, {by3..(not state.paused and "" or ""), hls.progress}, {by3.."ﲒ", hls.progress}
             }
         },
         id=M.content_id
@@ -43,7 +48,7 @@ local refresh_screen = function()
 end
 
 M.toggle_player = function()
-    vim.api.nvim_set_hl(0, 'PlayerGreen', {fg="#95c561",underline=true, bold=true})
+    -- vim.api.nvim_set_hl(0, 'PlayerGreen', {fg="#95c561",underline=true, bold=true})
     if state.loaded then
         vim.api.nvim_win_hide(M.win)
         state.loaded = false
@@ -54,20 +59,20 @@ M.toggle_player = function()
     M.win = vim.api.nvim_open_win(M.buf, true, win_opts)
 
     M.title_id = vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
-        virt_text={{state.title, "Function"}}, virt_text_pos='overlay'
+        virt_text={{state.title, hls.title}}, virt_text_pos='overlay'
     })
 
     M.content_id = vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
         virt_lines={
             {
-                {state.timing, "Function"}
+                {state.timing, hls.timer}
             },
             {
-                {("▁"):rep(math.floor((state.percent/100) * conf.width)), "Function"}
+                {("▁"):rep(math.floor((state.percent/100) * conf.width)), hls.progress}
             },
             {{"", ""}},
             {
-                {by3.."ﲑ", "Function"}, {by3..(state.paused and "" or ""), "Function"}, {by3.."ﲒ", "Function"}
+                {by3.."ﲑ", hls.progress}, {by3..(state.paused and "" or ""), hls.progress}, {by3.."ﲒ", hls.progress}
             }
         },
     })
@@ -86,7 +91,7 @@ M.toggle_player = function()
             end
 
             M.title_id = vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
-                virt_text={{'Searching for "'..query..'"...', "Function"}}, virt_text_pos='overlay', id=M.title_id
+                virt_text={{'Searching for "'..query..'"...', hls.title}}, virt_text_pos='overlay', id=M.title_id
             })
 
             if not query:match([[https://(www.)\?youtube.com]]) then
@@ -134,12 +139,32 @@ M.toggle_player = function()
         refresh_screen()
     end)
     map('p', 'p', function() state.paused = not state.paused end)
+    map('<space>', 'p', function() state.paused = not state.paused end)
     map('m', 'm', function() state.muted = not state.muted end)
     map('>', '>')
     map('<', '<')
+    map('<LeftMouse>', '', M.left_mouse)
     -- map('<Left>', '\\e[[D')
     -- map('<Right>', "\\e[[C")
     state.loaded = true
+end
+
+M.left_mouse = function()
+    -- local nice = vim.api.nvim_win_get_cursor(0)
+    local nice = vim.fn.getmousepos()
+    local pause = math.floor(conf.width/2)
+    local prev = math.floor(conf.width/4)
+    local next = math.floor(3 * (conf.width/4))
+    if (nice.winrow-1) == conf.height and math.abs(pause - nice.wincol) < 3 then
+        state.paused = not state.paused
+        vim.api.nvim_chan_send(state.jobid, 'p')
+        -- vim.pretty_print("Clear")
+    elseif (nice.winrow-1) == conf.height and math.abs(prev - nice.wincol) < 3 then
+        vim.api.nvim_chan_send(state.jobid, '<')
+    elseif (nice.winrow-1) == conf.height and math.abs(next - nice.wincol) < 3 then
+        vim.api.nvim_chan_send(state.jobid, '>')
+    end
+    refresh_screen()
 end
 
 return M
