@@ -11,8 +11,8 @@
 
 local M = {buf=nil, win=nil, ns=vim.api.nvim_create_namespace("player"), content_id=nil, title_id=nil}
 local conf = { width=50, height=5 }
-local state = {playing=false, jobid=nil, title="", paused=false, timing="", percent=0, muted=false, loaded=false}
-local win_opts = { relative='editor', style='minimal', border='single', row=1, col=vim.o.columns-conf.width-2, height=conf.height, width=conf.width } -- , title='PLAYER', title_pos='center' }
+local state = {playing=false, jobid=nil, title=nil, paused=false, timing="", percent=0, muted=false, loaded=false}
+local win_opts = {relative='editor', style='minimal', border='single', row=1, col=vim.o.columns-conf.width-2, height=conf.height, width=conf.width } -- , title='PLAYER', title_pos='center' }
 local hls = {title="String", timer="Identifier", progress="Function"}
 
 -- NOTE: for statusline components
@@ -47,8 +47,26 @@ local refresh_screen = function()
     })
 end
 
+local left_mouse = function()
+    local mouse = vim.fn.getmousepos()
+    if M.win ~= mouse.winid then return end
+
+    local pause = math.floor(conf.width/2)
+    local prev = math.floor(conf.width/4)
+    local next = math.floor(3 * (conf.width/4))
+    if (mouse.winrow-1) == conf.height and math.abs(pause - mouse.wincol) < 3 then
+        state.paused = not state.paused
+        vim.api.nvim_chan_send(state.jobid, 'p')
+        -- vim.pretty_print("Clear")
+    elseif (mouse.winrow-1) == conf.height and math.abs(prev - mouse.wincol) < 3 then
+        vim.api.nvim_chan_send(state.jobid, '<')
+    elseif (mouse.winrow-1) == conf.height and math.abs(next - mouse.wincol) < 3 then
+        vim.api.nvim_chan_send(state.jobid, '>')
+    end
+    refresh_screen()
+end
+
 M.toggle_player = function()
-    -- vim.api.nvim_set_hl(0, 'PlayerGreen', {fg="#95c561",underline=true, bold=true})
     if state.loaded then
         vim.api.nvim_win_hide(M.win)
         state.loaded = false
@@ -59,7 +77,7 @@ M.toggle_player = function()
     M.win = vim.api.nvim_open_win(M.buf, true, win_opts)
 
     M.title_id = vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
-        virt_text={{state.title, hls.title}}, virt_text_pos='overlay'
+        virt_text={{state.title or '', hls.title}}, virt_text_pos='overlay'
     })
 
     M.content_id = vim.api.nvim_buf_set_extmark(M.buf, M.ns, 0, 0, {
@@ -81,7 +99,7 @@ M.toggle_player = function()
         if state.playing then
             vim.fn.jobstop(state.jobid)
             state.playing = false
-            state.title = ""
+            state.title = nil
         end
 
         vim.ui.input({width=40}, function(query)
@@ -120,6 +138,10 @@ M.toggle_player = function()
                         end
                     end
                 end,
+                on_exit = function()
+                    state.playing = false
+                    state.title = nil
+                end
             })
             state.playing = true
         end)
@@ -143,28 +165,11 @@ M.toggle_player = function()
     map('m', 'm', function() state.muted = not state.muted end)
     map('>', '>')
     map('<', '<')
-    map('<LeftMouse>', '', M.left_mouse)
+    map('<LeftMouse>', '', left_mouse)
+    -- TODO: add other keys like left and right
     -- map('<Left>', '\\e[[D')
     -- map('<Right>', "\\e[[C")
     state.loaded = true
-end
-
-M.left_mouse = function()
-    -- local nice = vim.api.nvim_win_get_cursor(0)
-    local nice = vim.fn.getmousepos()
-    local pause = math.floor(conf.width/2)
-    local prev = math.floor(conf.width/4)
-    local next = math.floor(3 * (conf.width/4))
-    if (nice.winrow-1) == conf.height and math.abs(pause - nice.wincol) < 3 then
-        state.paused = not state.paused
-        vim.api.nvim_chan_send(state.jobid, 'p')
-        -- vim.pretty_print("Clear")
-    elseif (nice.winrow-1) == conf.height and math.abs(prev - nice.wincol) < 3 then
-        vim.api.nvim_chan_send(state.jobid, '<')
-    elseif (nice.winrow-1) == conf.height and math.abs(next - nice.wincol) < 3 then
-        vim.api.nvim_chan_send(state.jobid, '>')
-    end
-    refresh_screen()
 end
 
 return M
