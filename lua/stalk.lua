@@ -25,6 +25,7 @@ end
 S.stalk = function()
 	vim.ui.input({prompt="Enter gh username: "}, function(username)
         vim.cmd [[vsp | enew | setl nonu nornu bt=nofile bh=wipe]]
+        vim.keymap.set('n', 'q', '<CMD>q<CR>', {buffer=0})
 		local url = ("https://api.github.com/users/%s/received_events"):format(username)
 
 		vim.schedule(function()

@@ -64,7 +64,7 @@ require("tmpclone").clone()
 
 ---
 
-### Player (<150 loc)
+### Player (<150 loc) ❗Moved to [mpv.nvim](https://github.com/tamton-aquib/mpv.nvim)
 ![player](https://user-images.githubusercontent.com/77913442/206535745-e3e55f2a-99d9-418b-b2c4-b170a7615ccd.gif)
 ```lua
 require("player").toggle_player()
