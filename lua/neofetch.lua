@@ -22,9 +22,10 @@ local command = function(str)
     end
 end
 local uptime = function()
-    -- TODO: uv.uptime()
-    local hour, min = unpack(vim.split(command("uptime"):match("(%d?%d:%d%d?),"), ":"))
-    return hour.."hrs, "..min.."mins"
+    local t = uv.uptime()
+    local hours = math.floor(t/(60*60))
+    local days = math.floor(hours/24)
+    return days.." days, "..math.floor((t - days*24*60*60)/60).." mins"
 end
 
 M.setup = function()
@@ -33,11 +34,12 @@ M.setup = function()
     local u = uv.os_uname()
     local stuff = {
         uv.os_gethostname().."@"..os.getenv("USER"),
-        "Machine: " .. u.sysname .. " " .. u.machine,
-        "Release: " .. u.release,
+        "Architecture : " .. u.sysname .. " " .. u.machine,
+        "Release      : " .. u.release,
         -- Ram and usage?
-        "Uptime : " .. uptime(),
-        "DE/WM  : " .. "ᗪᗯᗰ "
+        "Packages     : " .. "150 (brew)",
+        "Uptime       : " .. uptime(),
+        "DE/WM        : " .. "ᗪᗯᗰ "
     }
 
     -- for i, line in ipairs(vim.split(ascii, '\n')) do
