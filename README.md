@@ -71,9 +71,14 @@ require("player").toggle_player()
 ```
 
 ## Other dev files (not completed):
-- neofetch.lua (system info using libuv)
-- snake.lua (snake game using floating wins)
-- cost.lua ([import-cost](https://github.com/wix/import-cost) alternative)
+- xkcd.lua - [XKCD](https://xkcd.com/) comics in neovim (needs [hologram.nvim](https://github.com/edluffy/hologram.nvim) 60LOC)
+- chatgpt.lua - ChatGPT with limited features (24LOC)
+- lazyn.lua - A plugin installer for [lazy.nvim](https://github.com/folke/lazy.nvim) (< 100LOC)
+- rain.lua - Raining effect (might add to [zone.nvim](https://github.com/tamton-aquib/zone.nvim) later <50LOC)
+- thunder.lua - rest client inspired from vscodes thunderclient. (Just have get function for now)
+- neofetch.lua - system info using libuv
+- snake.lua - snake game using floating wins
+- cost.lua - [import-cost](https://github.com/wix/import-cost) alternative
 
 ## Inspiration
 - `Scratch`: emacs-scratch-buffer + [shift-d](https://github.com/shift-d)
