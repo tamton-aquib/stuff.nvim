@@ -10,6 +10,15 @@ Feel free to extract and make any of them useful.
 
 Included modules:
 
+### Lazyn
+Lazy installer. Searches from a base of nearly 3000 plugins.
+status: incomplete (ugly)
+
+
+https://github.com/tamton-aquib/stuff.nvim/assets/77913442/d4f4063e-881d-4dea-b1d2-2b5b65ddd723
+
+
+
 ### Calc (<150 loc)
 ![calc](https://user-images.githubusercontent.com/77913442/183280043-b8e0b5bf-2fb3-41a8-b244-835743f1bdf3.gif)
 ```lua
