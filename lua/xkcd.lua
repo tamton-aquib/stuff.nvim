@@ -26,6 +26,7 @@ local open_split_and_paste_image = function(s)
 
     local win = vim.api.nvim_get_current_buf()
     local b = vim.api.nvim_get_current_buf()
+    vim.bo[b].buflisted = false
     vim.api.nvim_create_autocmd("BufEnter", {
         once = true,
         callback = function()
@@ -40,7 +41,7 @@ end
 M.xkcd = function()
     math.randomseed(os.clock())
 
-    vim.cmd [[vsp new | set nonu nornu bt=nofile]]
+    vim.cmd [[vsp enew | set nonu nornu bt=nofile bh=wipe]]
     vim.cmd("vert resize -20")
     local num = math.random(1, 2750)
     vim.fn.jobstart({"curl", "https://xkcd.com/"..num.."/info.0.json"}, {

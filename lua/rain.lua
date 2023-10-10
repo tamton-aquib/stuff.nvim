@@ -14,8 +14,9 @@ M.rain = function()
 
     local counter = 0
     local gtimer = vim.loop.new_timer()
-    gtimer:start(0, 500, vim.schedule_wrap(function()
+    gtimer:start(1000, 500, vim.schedule_wrap(function()
         -- local ids = vim.api.nvim_buf_get_extmarks()
+        -- vim.api.nvim_buf_del_extmark(buf, ns, id)
         local numbers = {}
         for _=1, N do
             local n = math.random(1, vim.o.columns)
@@ -33,7 +34,6 @@ M.rain = function()
                     timer:close()
                     timer:stop()
                     -- vim.api.nvim_buf_del_extmark(buf, ns, id)
-                    -- numbers = nil
                     return
                 end
                 vim.api.nvim_buf_set_extmark(buf, ns, d.l, d.c, { virt_text={{CHAR, "Identifier"}}, virt_text_pos="overlay", id=id })
