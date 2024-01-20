@@ -1,31 +1,52 @@
--- Similar to thunderclient in vscode (no features yet.)
+-- Similar to thunderclient in vscode (no features yet.) (Inspired from rest.nvim)
 -- TODO: Just POC of winbar as clickable tabs, info
 -- TODO: Does not work fully, just call the function when cursor on urls
 local M = {}
 
 local winbar = [[%1@v:lua.BCall@%#ResponseHighlight#Response%X%#None# %2@v:lua.BCall@%#HeaderHighlight#Header%X%#None# %3@v:lua.BCall@%#CookiesHighlight#Cookies%X%#None#%=]]
 
-local panes = { "Response", "Header", "Cookies" }
-local pane_contents = {
-    Response = { "Fetching..." },
-    Header = { "Fetching..." },
-    Cookies = { "Fetching..." }
+M.cmap = {
+    [1] = { name="Response", ft="json", contents={ "Fetching..." } },
+    [2] = { name="Header", ft="yaml"  , contents={ "Fetching..." } },
+    [3] = { name="Cookies", ft="dosini" , contents={ "Fetching..." } },
 }
-local pane = panes[1]
-local buf, win, url
-local counter = 0
 
-local set_lines_and_stuff = function() vim.api.nvim_buf_set_lines(0, 0, -1, false, pane_contents[pane]) end
+M.current_pane_index = 1
+local url, method
+local request_data = {}
+local request_headers = {}
+
+local set_lines_and_stuff = function()
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, M.cmap[M.current_pane_index].contents)
+    vim.cmd("setf " .. M.cmap[M.current_pane_index].ft)
+end
 
 local set_winbar = function()
-    vim.wo[win].winbar = winbar.. "%#ThunderCode#"..(M.status.." ok  " or "").. "%#ThunderSize#"..(M.length.." bytes  " or "").. "%#ThunderTime#"..(M.time.." s" or "")
+    vim.wo.winbar = winbar ..
+    "%#ThunderCode#"..(M.status.." ok  " or "") ..
+    "%#ThunderSize#"..(M.length.." bytes  " or "") ..
+    "%#ThunderTime#"..(M.time.." s" or "")
 end
 
 local call_for_help = function()
     local start_time = vim.fn.reltimefloat(vim.fn.reltime())
-    vim.fn.jobstart({"curl", "-i", url}, {
+    local command = {"curl", "-sL", "-i", url, "-X", method}
+    if request_data then
+        table.insert(command, "-d")
+        table.insert(command, table.concat(request_data))
+    end
+    if request_headers then
+        table.insert(command, "-H")
+        table.insert(command, table.concat(request_headers))
+    end
+
+    vim.fn.jobstart(command, {
         stdout_buffered = true,
         on_stdout = function(_, res)
+            if not res or res == "" then
+                print("[thunder.nvim] No data, returning from the callback")
+                return
+            end
             res = vim.iter(res):map(function(i) return i and i:gsub("\r", "") or nil end):totable()
 
             local _, status_code = unpack(vim.split(res[1], " ")) -- http version
@@ -34,8 +55,8 @@ local call_for_help = function()
 
             local end_time = vim.fn.reltimefloat(vim.fn.reltime())
 
-            pane_contents["Response"] = vim.split(vim.fn.system("jq", body), "\n")
-            pane_contents["Header"] = headers
+            M.cmap[1].contents = vim.split(vim.fn.system("jq", body), "\n")
+            M.cmap[2].contents = headers
             local header_stuff = vim.iter(headers):map(function(item)
                 if item ~= "" then
                     return item:match("(.*): (.*)")
@@ -47,7 +68,7 @@ local call_for_help = function()
                     return v
                 end
             end):totable()
-            pane_contents["Cookies"] = vim.tbl_isempty(cookies) and {"No Cookies"} or cookies
+            M.cmap[3].contents = vim.tbl_isempty(cookies) and {"No Cookies"} or cookies
 
             M.length = body:len()
             M.status = status_code
@@ -61,33 +82,47 @@ local call_for_help = function()
 end
 
 M.setup = function()
+    package.loaded["thunder"] = nil
     -- https://catfact.ninja/fact
     -- https://www.thunderclient.com/welcome
-    url = vim.fn.expand('<cfile>', nil, nil)
-    if not url:match("^http") then
-        vim.notify(url.. " is not a valid url!")
-        return
+    local pattern = "^([A-Z]+)%s*(.*)$"
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local append_to_headers = true
+
+    local methode, urle = lines[1]:match(pattern)
+    method = methode
+    url = urle
+    table.remove(lines, 1)
+    for _, line in ipairs(lines) do
+        if not vim.startswith(line, "#") then
+            if line == "" then
+                append_to_headers = false
+            else
+                if append_to_headers then
+                    table.insert(request_headers, line)
+                else
+                    table.insert(request_data, line)
+                end
+            end
+        end
     end
 
-    -- buf = vim.api.nvim_create_buf(false, true)
-    -- win = vim.api.nvim_open_win(buf, true, { style='minimal', border='double', relative='editor', row=5, col=5, width=100, height=20 })
-    vim.cmd [[vert new | setl nonu nornu ft=json bt=nofile]]
-    win = vim.api.nvim_get_current_win()
-    buf = vim.api.nvim_get_current_buf()
+    vim.cmd [[vert new | setl nonu nornu ft=json bt=nofile bh=wipe cole=0 wrap sw=2 ts=2]]
+    vim.keymap.set('n', '<leader>w', "<Cmd>q<Cr>", {buffer=0})
+    vim.keymap.set('n', 'q', "<Cmd>q<CR>", {buffer=0})
+    -- win = vim.api.nvim_get_current_win()
+    -- buf = vim.api.nvim_get_current_buf()
     set_lines_and_stuff()
-    vim.keymap.set('n', '<Tab>', function()
-        -- counter = ((counter + 1) % 3) + 1
-        local counters = {
-            [0] = { nxt = 2, ft="dosini" },
-            [1] = { nxt = 2, ft="dosini" },
-            [2] = { nxt = 3, ft="dosini" },
-            [3] = { nxt = 1, ft="json" }
-        }
-        counter = counters[counter].nxt
-        BCall(counter)
-        vim.cmd("set ft="..counters[counter].ft)
-    end, {buffer=buf})
-    vim.keymap.set('n', 'R', call_for_help, {buffer=buf})
+
+    vim.keymap.set('n', '<Right>', function()
+        M.current_pane_index = M.current_pane_index + 1
+        BCall()
+    end, {buffer=0})
+    vim.keymap.set('n', '<Left>', function()
+        M.current_pane_index = M.current_pane_index - 1
+        BCall()
+    end, {buffer=0})
+    vim.keymap.set('n', 'R', call_for_help, {buffer=0})
 
     vim.cmd [[hi ResponseHighlight gui=underline guifg=red]]
     vim.cmd [[hi HeaderHighlight gui=none guifg=none]]
@@ -97,18 +132,32 @@ M.setup = function()
     vim.cmd [[hi ThunderTime gui=bold guifg=green]]
 
     call_for_help()
-    vim.wo[win].winbar = winbar
+    vim.wo.winbar = winbar
 end
 
 
 function BCall(selected)
-    for p in vim.iter(panes) do vim.cmd("hi "..p.."Highlight gui=none guifg=none") end
-    if pane ~= panes[selected] then
-        pane = panes[selected]
-        vim.cmd ("hi " .. pane .. "Highlight gui=underline,bold guifg=red")
-        set_lines_and_stuff()
-        set_winbar()
+    if type(selected) == "number" then
+        M.current_pane_index = selected
+        selected = M.cmap[selected].name
     end
+    if M.current_pane_index > 3 then
+        M.current_pane_index = 1
+    end
+    if M.current_pane_index < 1 then
+        M.current_pane_index = 3
+    end
+
+    for i, p in ipairs(M.cmap) do
+        vim.cmd(
+            "hi ".. p.name .. "Highlight"..
+            " gui="..(i == M.current_pane_index and "underline,bold" or "none") ..
+            " guifg="..(i == M.current_pane_index and "red" or "none")
+        )
+    end
+
+    set_lines_and_stuff()
+    set_winbar()
 end
 
 return M
