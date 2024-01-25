@@ -1,20 +1,16 @@
 -- Similar to thunderclient in vscode (no features yet.) (Inspired from rest.nvim)
 -- TODO: Just POC of winbar as clickable tabs, info
--- TODO: Does not work fully, just call the function when cursor on urls
 local M = {}
+M.current_pane_index = 1
 
-local winbar = [[%1@v:lua.BCall@%#ResponseHighlight#Response%X%#None# %2@v:lua.BCall@%#HeaderHighlight#Header%X%#None# %3@v:lua.BCall@%#CookiesHighlight#Cookies%X%#None#%=]]
+local winbar = [[%1@v:lua.BCall@%#ResponseHighlight#Response%X%#Normal# %2@v:lua.BCall@%#HeaderHighlight#Header%X%#Normal# %3@v:lua.BCall@%#CookiesHighlight#Cookies%X%#Normal#%=]]
+local buf --, win
 
 M.cmap = {
     [1] = { name="Response", ft="json", contents={ "Fetching..." } },
     [2] = { name="Header", ft="yaml"  , contents={ "Fetching..." } },
     [3] = { name="Cookies", ft="dosini" , contents={ "Fetching..." } },
 }
-
-M.current_pane_index = 1
-local url, method
-local request_data = {}
-local request_headers = {}
 
 local set_lines_and_stuff = function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, M.cmap[M.current_pane_index].contents)
@@ -29,8 +25,31 @@ local set_winbar = function()
 end
 
 local call_for_help = function()
+    local request_data = {}
+    local request_headers = {}
+
+    local pattern = "^([A-Z]+)%s*(.*)$"
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local append_to_headers = true
+
+    local method, url = lines[1]:match(pattern)
+    table.remove(lines, 1)
+    for _, line in ipairs(lines) do
+        if not vim.startswith(line, "#") then
+            if line == "" then
+                append_to_headers = false
+            else
+                if append_to_headers then
+                    table.insert(request_headers, line)
+                else
+                    table.insert(request_data, line)
+                end
+            end
+        end
+    end
+
     local start_time = vim.fn.reltimefloat(vim.fn.reltime())
-    local command = {"curl", "-sL", "-i", url, "-X", method}
+    local command = { "curl", "-sL", "-i", url, "-X", method }
     if request_data then
         table.insert(command, "-d")
         table.insert(command, table.concat(request_data))
@@ -43,8 +62,9 @@ local call_for_help = function()
     vim.fn.jobstart(command, {
         stdout_buffered = true,
         on_stdout = function(_, res)
-            if not res or res == "" then
-                print("[thunder.nvim] No data, returning from the callback")
+            if not res or res == "" or (#res == 1 and  res[1] == "") then
+                vim.cmd.quit()
+                vim.notify("[thunder.nvim] No data, returning from the callback")
                 return
             end
             res = vim.iter(res):map(function(i) return i and i:gsub("\r", "") or nil end):totable()
@@ -70,9 +90,9 @@ local call_for_help = function()
             end):totable()
             M.cmap[3].contents = vim.tbl_isempty(cookies) and {"No Cookies"} or cookies
 
-            M.length = body:len()
+            M.length = body:len() -- + header-len?
             M.status = status_code
-            -- HACK(tamtonaquib): not really how it works.
+            -- HACK(tamtonaquib): not really how it works. vim.uv?
             M.time = ("%.2f"):format(end_time - start_time)
 
             set_lines_and_stuff()
@@ -81,38 +101,40 @@ local call_for_help = function()
     })
 end
 
-M.setup = function()
+-- local vline_id, vtext_id, target
+-- local vmethod, vurl, vheaders
+-- M.setup = function()
+    -- vim.api.nvim_create_autocmd("BufEnter", {
+        -- pattern = "http",
+        -- callback = function()
+            -- vline_id = nil
+            -- vtext_id = nil
+            -- target = nil
+            -- local vlines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+            -- vmethod, vurl = vlines[1]:match("^([A-Z]+)%s*(.*)$")
+            -- for i, line in ipairs(vlines) do
+                -- if line == "" then
+                    -- target = i
+                -- end
+            -- end
+        -- end
+    -- })
+-- end
+
+M.run = function()
     package.loaded["thunder"] = nil
     -- https://catfact.ninja/fact
     -- https://www.thunderclient.com/welcome
-    local pattern = "^([A-Z]+)%s*(.*)$"
-    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-    local append_to_headers = true
+    -- win = vim.api.nvim_get_current_win()
+    buf = vim.api.nvim_get_current_buf()
 
-    local methode, urle = lines[1]:match(pattern)
-    method = methode
-    url = urle
-    table.remove(lines, 1)
-    for _, line in ipairs(lines) do
-        if not vim.startswith(line, "#") then
-            if line == "" then
-                append_to_headers = false
-            else
-                if append_to_headers then
-                    table.insert(request_headers, line)
-                else
-                    table.insert(request_data, line)
-                end
-            end
-        end
-    end
 
     vim.cmd [[vert new | setl nonu nornu ft=json bt=nofile bh=wipe cole=0 wrap sw=2 ts=2]]
     vim.keymap.set('n', '<leader>w', "<Cmd>q<Cr>", {buffer=0})
     vim.keymap.set('n', 'q', "<Cmd>q<CR>", {buffer=0})
-    -- win = vim.api.nvim_get_current_win()
-    -- buf = vim.api.nvim_get_current_buf()
     set_lines_and_stuff()
+
+    call_for_help()
 
     vim.keymap.set('n', '<Right>', function()
         M.current_pane_index = M.current_pane_index + 1
@@ -131,7 +153,6 @@ M.setup = function()
     vim.cmd [[hi ThunderSize gui=bold guifg=green]]
     vim.cmd [[hi ThunderTime gui=bold guifg=green]]
 
-    call_for_help()
     vim.wo.winbar = winbar
 end
 
