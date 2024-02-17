@@ -1,7 +1,7 @@
 # Stuff.nvim
 
 Some little plugin-like files put together.
-> **Warning**
+> [!Warning]
 > 
 >  Not much use, theres no config options, etc 
 > (just wanted to share the work)
@@ -10,13 +10,11 @@ Feel free to extract and make any of them useful.
 
 Included modules:
 
-### Lazyn
+### Lazyn (50 loc)  ❗Moved to [nvim-market](https://github.com/tamton-aquib/nvim-market)
 Lazy installer. Searches from a base of nearly 3000 plugins.
-status: incomplete (ugly)
-
+status: moved (ugly)
 
 https://github.com/tamton-aquib/stuff.nvim/assets/77913442/d4f4063e-881d-4dea-b1d2-2b5b65ddd723
-
 
 
 ### Calc (<150 loc)
@@ -82,7 +80,7 @@ require("player").toggle_player()
 ## Other dev files (not completed):
 - xkcd.lua - [XKCD](https://xkcd.com/) comics in neovim (needs [hologram.nvim](https://github.com/edluffy/hologram.nvim) 60LOC)
 - chatgpt.lua - ChatGPT with limited features (24LOC)
-- lazyn.lua - A plugin installer for [lazy.nvim](https://github.com/folke/lazy.nvim) (< 100LOC)
+- dep.lua - Dependency info for Cargo.toml, pyproject.toml and package.json
 - rain.lua - Raining effect (might add to [zone.nvim](https://github.com/tamton-aquib/zone.nvim) later <50LOC)
 - thunder.lua - rest client inspired from vscodes thunderclient. (Just have get function for now)
 - neofetch.lua - system info using libuv
