@@ -23,17 +23,19 @@ local parse_json = function(json_data)
 end
 
 S.stalk = function()
-	vim.ui.input({prompt="Enter gh username: "}, function(username)
-        vim.cmd [[vsp | enew | setl nonu nornu bt=nofile bh=wipe]]
-        vim.keymap.set('n', 'q', '<CMD>q<CR>', {buffer=0})
-		local url = ("https://api.github.com/users/%s/received_events"):format(username)
+  vim.schedule(function()
+    vim.ui.input({prompt="Enter gh username: "}, function(username)
+          vim.cmd [[vsp | enew | setl nonu nornu bt=nofile bh=wipe]]
+          vim.keymap.set('n', 'q', '<CMD>q<CR>', {buffer=0})
+      local url = ("https://api.github.com/users/%s/received_events"):format(username)
 
-		vim.schedule(function()
-			local sauce = require("plenary.job"):new({ command = "curl", args = {url} }):sync()
-			local json_data = vim.json.decode(table.concat(sauce, ''))
-			vim.api.nvim_put(parse_json(json_data), "", false, false)
-		end)
-	end)
+      vim.schedule(function()
+        local sauce = require("plenary.job"):new({ command = "curl", args = {url} }):sync()
+        local json_data = vim.json.decode(table.concat(sauce, ''))
+        vim.api.nvim_put(parse_json(json_data), "", false, false)
+      end)
+    end)
+  end)
 end
 
 S.setup = function()
