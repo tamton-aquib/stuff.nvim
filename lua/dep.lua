@@ -9,12 +9,17 @@ local filter = {
 local set_stuff = function(data)
     local fname = vim.fn.expand("%:t")
     local f = filter[fname]
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
-        "Name: " .. data[f.name],
-        "Version: " .. data[f.version],
-        "HomePage: " .. data[f.homepage],
-    })
-    vim.api.nvim_win_set_config(win, {width=data[f.homepage]:len() + 10})
+
+    local lines = { "Name: " .. data[f.name], "Version: " .. data[f.version] }
+    local width = data[f.name]:len() + 10
+    vim.print("homepage: ", data[f.homepage])
+    if f.homepage == vim.NIL then
+        table.insert(lines, "HomePage: " .. data[f.homepage])
+        width = data[f.homepage]:len() + 10
+    end
+
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.api.nvim_win_set_config(win, {width=width, height=#lines})
 end
 
 M.check = function()
@@ -23,9 +28,10 @@ M.check = function()
 
     buf = vim.api.nvim_create_buf(false, true)
     win = vim.api.nvim_open_win(buf, false, {
-        relative="cursor", row=1, col=1, height=3, width=20,
+        relative="cursor", row=1, col=1, height=1, width=20,
         title="Dep", border="single", style="minimal"
     })
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {"Loading..."})
 
     if filename == "package.json" then
 
