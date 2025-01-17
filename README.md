@@ -44,7 +44,7 @@ require("stalk").setup()
 ### Scratch (< 50 loc)
 ![scratch_stuff](https://user-images.githubusercontent.com/77913442/183280873-986a68d0-ac3f-4dcc-97a5-6adc40035d05.gif)
 ```lua
-require("scratch").setup()
+require("scratch").toggle()
 ```
 ---
 
