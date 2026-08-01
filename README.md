@@ -77,6 +77,17 @@ require("tmpclone").clone()
 require("player").toggle_player()
 ```
 
+### Velcro (<160 loc)
+Preview yank/cut history as virtual text before it is committed. `p` shows the
+most recent yank as an extmark at the cursor, `p` again cycles the ring, and
+after `delay` ms the previewed entry is pasted for real. Moving the cursor or
+editing cancels. `:VelcroCancel` aborts the pending paste.
+```lua
+require("velcro").setup({ delay = 3000, limit = 5 })
+```
+
+---
+
 ## Other dev files (not completed):
 - xkcd.lua - [XKCD](https://xkcd.com/) comics in neovim (needs [hologram.nvim](https://github.com/edluffy/hologram.nvim) 60LOC)
 - chatgpt.lua - ChatGPT with limited features (24LOC)
